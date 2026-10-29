@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#7657E8">
+<title>Photo Studio</title>
+<style>
+:root{--p:#7657E8;--k:#F06BA8;--t:#202033;--bg:#fff;--sf:#F4F3FA;--mut:#7a7a93;--ln:#e6e4f2}
+[data-theme=dark]{--t:#f1f0fa;--bg:#17161f;--sf:#232230;--mut:#a09fb8;--ln:#34324a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--t);overflow:hidden;padding-top:env(safe-area-inset-top)}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,select{font:inherit;color:var(--t)}
+#app{height:100%;display:flex;flex-direction:column}
+main{flex:1;min-height:0;position:relative}
+.scr{display:none;height:100%;overflow-y:auto;padding:16px}
+.scr.on{display:block}
+#s-edit{padding:0}
+#s-edit.on{display:flex;flex-direction:column}
+nav{display:flex;border-top:1px solid var(--ln);background:var(--bg);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 0;font-size:12px;color:var(--mut);min-height:56px}
+nav button.on{color:var(--p);font-weight:700}
+h1,h2,h3{margin:0}
+h2{font-size:17px;margin:22px 0 10px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px}
+.brand svg{width:34px;height:34px}
+.hd{font-size:30px;line-height:1.1;font-weight:800;margin:18px 0 14px;letter-spacing:-.5px}
+.hero{border-radius:26px;overflow:hidden;position:relative;background:linear-gradient(160deg,#9a7dff,var(--p) 45%,var(--k));color:#fff;padding:20px;min-height:230px}
+.hero p{margin:0 0 14px;max-width:62%;opacity:.95}
+.sun{position:absolute;right:28px;top:26px;width:54px;height:54px;border-radius:50%;background:#ffe9a8}
+.hill{position:absolute;bottom:0;border-radius:50% 50% 0 0}
+.pri,.wb{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 22px;border-radius:999px;font-weight:700}
+.pri{background:linear-gradient(90deg,var(--p),var(--k));color:#fff}
+.wb{background:#fff;color:var(--p)}
+.sec{background:var(--sf);border:1px solid var(--ln);border-radius:14px;min-height:44px;padding:0 14px}
+.row{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px}
+.card{flex:0 0 auto;width:96px;background:var(--sf);border-radius:18px;padding:12px 6px;text-align:center;font-size:12px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:6px}
+.card svg{color:var(--p)}
+.proj{flex:0 0 auto;width:120px;position:relative;text-align:left}
+.proj img{width:100%;height:96px;object-fit:cover;border-radius:16px;background:var(--sf);display:block}
+.proj b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px}
+.proj small{color:var(--mut);font-size:11px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.grid .proj{width:auto}
+.grid .proj img{height:130px}
+.pa{display:flex;gap:6px;margin-top:6px}
+.pa button{flex:1;min-height:36px;border-radius:10px;background:var(--sf);font-size:12px;font-weight:600}
+.pa .d{color:#d33}
+.mini{position:relative;width:70px;height:70px;background:var(--sf);border-radius:10px;overflow:hidden}
+.mini i{position:absolute;background:linear-gradient(135deg,var(--p),var(--k));border:2px solid var(--sf);border-radius:4px}
+.empty{padding:36px 10px;text-align:center;color:var(--mut)}
+.empty .pri{margin-top:14px}
+.bar{display:flex;align-items:center;gap:2px;padding:6px 8px;border-bottom:1px solid var(--ln)}
+.ib{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+.ib:disabled{opacity:.3}
+.sp{flex:1}
+.bar .pri{min-height:40px;padding:0 16px}
+#stage{flex:1;min-height:120px;background:#15141c;display:flex;align-items:center;justify-content:center;padding:12px;position:relative;overflow:hidden}
+#cw{position:relative;touch-action:none}
+#cv{display:block;width:100%;height:100%;background:repeating-conic-gradient(#2a2933 0 25%,#1f1e27 0 50%) 0 0/16px 16px}
+#crop{position:absolute;inset:0}
+#cb{position:absolute;border:2px solid #fff;box-shadow:0 0 0 999px rgba(0,0,0,.55);touch-action:none;cursor:move}
+.h{position:absolute;width:30px;height:30px;touch-action:none}
+.h:after{content:"";position:absolute;width:16px;height:16px;background:#fff;border:2px solid var(--p);border-radius:5px;left:7px;top:7px}
+.h[data-h=tl]{left:-15px;top:-15px}.h[data-h=tr]{right:-15px;top:-15px}.h[data-h=bl]{left:-15px;bottom:-15px}.h[data-h=br]{right:-15px;bottom:-15px}
+#inf{text-align:center;font-size:12px;color:var(--mut);padding:4px}
+#tabs{display:flex;overflow-x:auto;border-top:1px solid var(--ln)}
+#tabs button{flex:1 0 auto;min-width:68px;display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 6px;font-size:11px;color:var(--mut)}
+#tabs button.on{color:var(--p);font-weight:700;box-shadow:inset 0 -3px var(--p)}
+#panels{height:168px;overflow-y:auto;padding:10px 14px;border-top:1px solid var(--ln);background:var(--bg)}
+.pn{display:none}.pn.on{display:block}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.chip{min-height:40px;padding:0 14px;border-radius:999px;background:var(--sf);font-size:13px;font-weight:600}
+.chip.on{background:var(--p);color:#fff}
+label.s{display:block;font-size:13px;font-weight:600;margin:6px 0}
+label.s b{float:right;color:var(--mut);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--p);height:28px;margin:0}
+input[type=text],input[type=number],select{width:100%;min-height:42px;border-radius:12px;border:1px solid var(--ln);background:var(--sf);padding:0 12px}
+input[type=color]{width:46px;height:42px;border:0;padding:0;background:none}
+.two{display:flex;gap:10px;align-items:center}
+.modal{position:fixed;inset:0;background:rgba(20,18,40,.55);display:flex;align-items:flex-end;z-index:20}
+.modal>div{background:var(--bg);width:100%;max-height:92%;overflow-y:auto;border-radius:24px 24px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom))}
+#cc{width:100%;border-radius:14px;background:var(--sf);display:block;margin:10px 0}
+.set{background:var(--sf);border-radius:16px;padding:14px;margin-bottom:12px}
+.set p{margin:4px 0;color:var(--mut);font-size:13px}
+#fl{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px}
+.ft{flex:0 0 auto;width:78px;text-align:center;font-size:11px;font-weight:600;color:var(--mut)}
+.ft canvas{width:78px;height:78px;border-radius:14px;display:block;border:3px solid transparent;margin-bottom:4px;background:var(--sf)}
+.ft.on{color:var(--p)}.ft.on canvas{border-color:var(--p)}
+select.cs{display:none}
+.sel{width:100%;min-height:46px;border-radius:14px;border:1px solid var(--ln);background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-weight:600;text-align:left}
+.sel svg{color:var(--mut)}
+#ps>div{animation:sl .28s cubic-bezier(.2,.9,.3,1)}
+.gr{width:42px;height:4px;border-radius:4px;background:var(--ln);margin:-8px auto 14px}
+.opt{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:54px;padding:0 14px;border-radius:14px;font-weight:600;margin-top:4px}
+.opt.on{background:var(--sf);color:var(--p)}
+.rd{width:22px;height:22px;border-radius:50%;border:2px solid var(--ln)}
+.opt.on .rd{border-color:var(--p);background:radial-gradient(var(--p) 45%,transparent 50%)}
+@keyframes sl{from{transform:translateY(100%)}}
+#toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);background:#202033;color:#fff;padding:11px 18px;border-radius:14px;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:88%;text-align:center;font-size:14px}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+#splash{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:linear-gradient(165deg,#5a3fd0,var(--p) 40%,var(--k));color:#fff;transition:opacity .5s,visibility .5s}
+#splash.out{opacity:0;visibility:hidden;pointer-events:none}
+#splash .lg{width:96px;height:96px;animation:pop .9s cubic-bezier(.2,1.3,.4,1) both}
+#splash .lg g{transform-origin:50px 50px;animation:spin 2.4s ease-in-out infinite}
+#splash h1{font-size:32px;letter-spacing:-.5px;animation:up .7s .2s both}
+#splash p{margin:0;opacity:.85;animation:up .7s .35s both}
+.pb{width:160px;height:5px;border-radius:5px;background:rgba(255,255,255,.3);overflow:hidden;margin-top:18px}
+.pb i{display:block;height:100%;width:0;background:#fff;border-radius:5px;animation:ld 1.9s ease-out forwards}
+@keyframes pop{from{transform:scale(.4);opacity:0}}
+@keyframes up{from{transform:translateY(14px);opacity:0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes ld{to{width:100%}}
+@media(prefers-reduced-motion:reduce){#splash *{animation-duration:.01s!important}}
+</style>
+</head>
+<body>
+<div id="splash">
+  <svg class="lg" viewBox="0 0 100 100"><rect width="100" height="100" rx="26" fill="#fff"/><g><path d="M50 18a32 32 0 0 1 27.7 16H50z" fill="#7657E8"/><path d="M77.7 34A32 32 0 0 1 77.7 66L63.8 58a16 16 0 0 0 0-16z" fill="#F06BA8"/><path d="M77.7 66A32 32 0 0 1 50 82V66z" fill="#7657E8" opacity=".75"/><path d="M50 82A32 32 0 0 1 22.3 66L36.2 58a16 16 0 0 0 13.8 8z" fill="#F06BA8" opacity=".75"/><path d="M22.3 66A32 32 0 0 1 22.3 34H36.2a16 16 0 0 0 0 24z" fill="#7657E8" opacity=".5"/></g></svg>
+  <h1>Photo Studio</h1>
+  <p>Make every photo special</p>
+  <div class="pb"><i></i></div>
+</div>
+
+<div id="app">
+<main>
+<section id="s-home" class="scr on">
+  <div class="brand"><svg viewBox="0 0 100 100"><rect width="100" height="100" rx="26" fill="#7657E8"/><circle cx="50" cy="50" r="22" fill="none" stroke="#F06BA8" stroke-width="12"/></svg>Photo Studio</div>
+  <h1 class="hd">Make every photo special</h1>
+  <div class="hero">
+    <div class="sun"></div>
+    <div class="hill" style="left:-30px;width:70%;height:90px;background:rgba(40,20,110,.55)"></div>
+    <div class="hill" style="right:-40px;width:80%;height:120px;background:rgba(40,20,110,.35)"></div>
+    <p>Crop, adjust, add text and export. Everything stays on your device.</p>
+    <button class="wb" id="choose"><span data-i="image"></span>Choose Photo</button>
+  </div>
+  <h2>Recent projects</h2>
+  <div class="row" id="recent"></div>
+  <h2>Quick tools</h2>
+  <div class="row">
+    <button class="card" data-q="crop"><span data-i="crop"></span>Crop</button>
+    <button class="card" data-q="rotate"><span data-i="rotate"></span>Rotate</button>
+    <button class="card" data-q="adjust"><span data-i="adjust"></span>Adjust</button>
+    <button class="card" data-q="filters"><span data-i="filters"></span>Filters</button>
+    <button class="card" data-q="text"><span data-i="text"></span>Text</button>
+    <button class="card" data-q="resize"><span data-i="resize"></span>Resize</button>
+  </div>
+  <h2>Collages</h2>
+  <div class="row" id="tpl"></div>
+</section>
+
+<section id="s-edit" class="scr">
+  <div class="empty" id="empty"><div style="color:var(--p)" data-i="image"></div><h3 style="color:var(--t)">No photo open</h3>Choose a photo to start editing.<br><button class="pri" id="choose2">Choose Photo</button></div>
+  <div id="ed" hidden style="flex:1;display:flex;flex-direction:column;min-height:0">
+    <div class="bar">
+      <button class="ib" id="un" data-i="undo" aria-label="Undo"></button>
+      <button class="ib" id="re" data-i="redo" aria-label="Redo"></button>
+      <button class="ib" id="rs" data-i="reset" aria-label="Reset to original"></button>
+      <button class="ib" id="cmp" data-i="compare" aria-label="Hold to compare with original"></button>
+      <span class="sp"></span>
+      <button class="ib" id="sv" data-i="folder" aria-label="Save project"></button>
+      <button class="pri" id="ex">Export</button>
+    </div>
+    <div id="stage"><div id="cw"><canvas id="cv"></canvas><div id="crop" hidden><div id="cb"><i class="h" data-h="tl"></i><i class="h" data-h="tr"></i><i class="h" data-h="bl"></i><i class="h" data-h="br"></i></div></div></div></div>
+    <div id="inf"></div>
+    <div id="tabs">
+      <button data-t="crop"><span data-i="crop"></span>Crop</button>
+      <button data-t="rotate"><span data-i="rotate"></span>Rotate</button>
+      <button data-t="adjust"><span data-i="adjust"></span>Adjust</button>
+      <button data-t="filters"><span data-i="filters"></span>Filters</button>
+      <button data-t="text"><span data-i="text"></span>Text</button>
+      <button data-t="shapes"><span data-i="shapes"></span>Shapes</button>
+      <button data-t="resize"><span data-i="resize"></span>Resize</button>
+    </div>
+    <div id="panels">
+      <div class="pn" data-p="crop">
+        <div class="chips" id="ratios"></div>
+        <button class="pri" id="applyCrop">Apply crop</button>
+      </div>
+      <div class="pn" data-p="rotate"><div class="chips">
+        <button class="chip" id="rl">Rotate left</button><button class="chip" id="rr">Rotate right</button>
+        <button class="chip" id="fh">Flip horizontal</button><button class="chip" id="fv">Flip vertical</button></div></div>
+      <div class="pn" data-p="adjust">
+        <label class="s">Brightness<b></b><input type="range" data-k="b" min="0" max="200" value="100"></label>
+        <label class="s">Contrast<b></b><input type="range" data-k="c" min="0" max="200" value="100"></label>
+        <label class="s">Saturation<b></b><input type="range" data-k="s" min="0" max="200" value="100"></label>
+        <label class="s">Blur<b></b><input type="range" data-k="bl" min="0" max="10" step=".5" value="0"></label>
+      </div>
+      <div class="pn" data-p="filters"><div id="fl"></div></div>
+      <div class="pn" data-p="text">
+        <input type="text" data-g="tx" data-k="t" placeholder="Type your text" maxlength="80">
+        <div class="two" style="margin:8px 0"><span style="font-size:13px;font-weight:600">Colour</span><input type="color" data-g="tx" data-k="color" value="#ffffff"></div>
+        <label class="s">Size<b></b><input type="range" data-g="tx" data-k="size" min="2" max="30" value="8"></label>
+        <label class="s">Left / right<b></b><input type="range" data-g="tx" data-k="x" min="0" max="100" value="50"></label>
+        <label class="s">Up / down<b></b><input type="range" data-g="tx" data-k="y" min="0" max="100" value="50"></label>
+      </div>
+      <div class="pn" data-p="shapes">
+        <select data-g="sh" data-k="type"><option value="none">No shape</option><option value="rect">Rectangle</option><option value="circle">Circle</option><option value="line">Line</option></select>
+        <div class="two" style="margin:8px 0"><span style="font-size:13px;font-weight:600">Shape colour</span><input type="color" data-g="sh" data-k="color" value="#F06BA8"></div>
+        <label class="s">Shape size<b></b><input type="range" data-g="sh" data-k="size" min="10" max="100" value="50"></label>
+        <label class="s">Border width<b></b><input type="range" data-g="bd" data-k="w" min="0" max="10" step=".5" value="0"></label>
+        <div class="two"><span style="font-size:13px;font-weight:600">Border colour</span><input type="color" data-g="bd" data-k="color" value="#ffffff"></div>
+      </div>
+      <div class="pn" data-p="resize">
+        <div class="two"><input type="number" id="rw" min="16" max="4096" aria-label="Width"><span>×</span><input type="number" id="rh" min="16" max="4096" aria-label="Height"></div>
+        <div class="chips" style="margin-top:8px"><button class="chip" data-w="1080">1080 wide</button><button class="chip" data-w="1920">1920 wide</button><button class="chip" data-w="half">50%</button>
+        <label class="chip" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="lk" checked>Lock ratio</label></div>
+        <button class="pri" id="applyRs">Apply size</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="s-proj" class="scr">
+  <h1 style="font-size:24px">Projects</h1>
+  <p style="color:var(--mut)" id="pnote">Saved on this device only.</p>
+  <div class="grid" id="plist"></div>
+</section>
+
+<section id="s-set" class="scr">
+  <h1 style="font-size:24px;margin-bottom:14px">Settings</h1>
+  <div class="set"><b>Theme</b><select id="th" style="margin-top:8px"><option value="light">Light</option><option value="dark">Dark</option><option value="system">Match device</option></select></div>
+  <div class="set"><b>Export</b><select id="sf" style="margin:8px 0"><option value="jpg">JPG</option><option value="png">PNG</option></select>
+    <label class="s">Image quality (JPG)<b id="sqv"></b><input type="range" id="sq" min="50" max="100"></label></div>
+  <div class="set"><b>Privacy</b><p>Photos are edited and saved only on this device. Nothing is uploaded and no account is needed.</p><p>Exporting downloads a file. Saving into the Android gallery needs the host app to allow downloads or provide native saving.</p></div>
+  <div class="set"><b>Photo Studio</b><p>Version 1.0.0</p><button class="sec" id="clr" style="margin-top:8px;color:#d33;font-weight:700">Clear all project data</button></div>
+</section>
+</main>
+<nav>
+  <button data-s="home" class="on"><span data-i="home"></span>Home</button>
+  <button data-s="edit"><span data-i="edit"></span>Edit</button>
+  <button data-s="proj"><span data-i="folder"></span>Projects</button>
+  <button data-s="set"><span data-i="gear"></span>Settings</button>
+</nav>
+</div>
+
+<div class="modal" id="xs" hidden><div>
+  <h3>Export photo</h3>
+  <p id="xi" style="color:var(--mut);margin:4px 0 10px"></p>
+  <select id="xf"><option value="jpg">JPG</option><option value="png">PNG</option></select>
+  <label class="s">Quality (JPG)<b id="xqv"></b><input type="range" id="xq" min="50" max="100"></label>
+  <div class="two" style="margin-top:12px"><button class="sec" id="xc" style="flex:1">Cancel</button><button class="pri" id="xd" style="flex:1">Download</button></div>
+</div></div>
+
+<div class="modal" id="co" hidden><div>
+  <h3>Collage</h3>
+  <div class="chips" style="margin-top:10px" id="cc-n"></div>
+  <div class="chips" id="cc-l"></div>
+  <canvas id="cc"></canvas>
+  <label class="s">Gap<b></b><input type="range" id="cg" min="0" max="40" value="10"></label>
+  <div class="two" style="margin:6px 0 12px"><span style="font-size:13px;font-weight:600">Background</span><input type="color" id="cbg" value="#ffffff"></div>
+  <div class="two"><button class="sec" id="cp" style="flex:1">Choose photos</button><button class="pri" id="co-open" style="flex:1">Open in editor</button></div>
+  <button class="sec" id="co-x" style="width:100%;margin-top:10px">Close</button>
+</div></div>
+
+<div class="modal" id="cf" hidden style="z-index:50"><div><p id="cft" style="margin:0 0 14px;font-weight:600"></p><div class="two"><button class="sec" id="cfn" style="flex:1">Cancel</button><button class="pri" id="cfy" style="flex:1">Confirm</button></div></div></div>
+<div class="modal" id="ps" hidden style="z-index:55"><div><div class="gr"></div><h3 id="pt" style="margin:0 4px 8px"></h3><div id="po"></div></div></div>
+<div id="toast" role="status"></div>
+<input type="file" id="fi" accept="image/*" hidden>
+<input type="file" id="fc" accept="image/*" multiple hidden>
+
+<script>setTimeout(function(){var s=document.getElementById('splash');if(s)s.classList.add('out')},3500)</script>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),Q=s=>[...document.querySelectorAll(s)],clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const IC={crop:'M6 2v14a2 2 0 0 0 2 2h14M2 6h14a2 2 0 0 1 2 2v14',rotate:'M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5',adjust:'M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6',filters:'M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9zM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z',text:'M4 7V4h16v3M9 20h6M12 4v16',shapes:'M4 4h10v10H4zM14 10a6 6 0 1 0 6 6',resize:'M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7',home:'M3 11l9-8 9 8M5 10v10h14V10',edit:'M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z',folder:'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',gear:'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z',undo:'M9 14L4 9l5-5M4 9h11a5 5 0 0 1 0 10h-3',redo:'M15 14l5-5-5-5M20 9H9a5 5 0 0 0 0 10h3',reset:'M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5',compare:'M12 3v18M4 6h5v12H4zM15 6h5v12h-5z',image:'M3 5h18v14H3zM3 16l5-5 4 4 3-3 6 6'};
+Q('[data-i]').forEach(e=>e.insertAdjacentHTML('afterbegin',`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="${IC[e.dataset.i]}"/></svg>`));
+
+/* ---------- prefs / theme / toast ---------- */
+let P={theme:'light',fmt:'jpg',q:92};
+try{Object.assign(P,JSON.parse(localStorage.getItem('ps')||'{}'))}catch(e){}
+const sp=()=>{try{localStorage.setItem('ps',JSON.stringify(P))}catch(e){}};
+function theme(){const d=P.theme==='dark'||(P.theme==='system'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.dataset.theme=d?'dark':'light'}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),2800)}
+function syncPrefs(){setTimeout(()=>window.selLab&&selLab());$('th').value=P.theme;$('sf').value=P.fmt;$('sq').value=P.q;$('sqv').textContent=P.q+'%';$('xf').value=P.fmt;$('xq').value=P.q;$('xqv').textContent=P.q+'%'}
+$('th').onchange=e=>{P.theme=e.target.value;sp();theme()};
+$('sf').onchange=e=>{P.fmt=e.target.value;sp();syncPrefs()};
+$('sq').oninput=e=>{P.q=+e.target.value;sp();syncPrefs()};
+const FOK='filter' in CanvasRenderingContext2D.prototype;
+
+/* ---------- navigation ---------- */
+let st=null,orig=null,hist=[],hi=0,tab='adjust',curId=null,curName='Photo',pending=null;
+function show(n){Q('.scr').forEach(s=>s.classList.toggle('on',s.id==='s-'+n));Q('nav button').forEach(b=>b.classList.toggle('on',b.dataset.s===n));
+  $('empty').hidden=!!st;$('ed').hidden=!st;if(n==='proj'||n==='home')loadProjs();if(n==='edit'&&st)requestAnimationFrame(render)}
+Q('nav button').forEach(b=>b.onclick=()=>show(b.dataset.s));
+
+/* ---------- import ---------- */
+function okFile(f){if(!f||!/^image\/(jpeg|png|webp|gif|bmp|avif)$/.test(f.type)){toast('Choose a JPG, PNG, WebP, GIF, BMP or AVIF image.');return false}
+  if(f.size>40e6){toast('That file is over 40 MB. Choose a smaller image.');return false}return true}
+const readImg=f=>new Promise((res,rej)=>{const u=URL.createObjectURL(f),i=new Image();i.onload=()=>{URL.revokeObjectURL(u);res(i)};i.onerror=()=>{URL.revokeObjectURL(u);rej()};i.src=u});
+function toCanvas(i,max=3000){const w=i.naturalWidth,h=i.naturalHeight,k=Math.min(1,max/Math.max(w,h)),c=document.createElement('canvas');c.width=Math.round(w*k);c.height=Math.round(h*k);c.getContext('2d').drawImage(i,0,0,c.width,c.height);return c}
+function pick(tool){pending=tool||null;if(st&&tool){show('edit');setTab(tool);return}$('fi').click()}
+['choose','choose2'].forEach(i=>$(i).onclick=()=>pick());
+Q('[data-q]').forEach(b=>b.onclick=()=>pick(b.dataset.q));
+$('fi').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!okFile(f))return;
+  try{const c=toCanvas(await readImg(f));start(c,f.name.replace(/\.[^.]+$/,'')||'Photo',null)}catch(x){toast('This image could not be read. Try another file.')}};
+
+/* ---------- editing state ---------- */
+const fresh=b=>({base:b,rot:0,fx:0,fy:0,b:100,c:100,s:100,bl:0,f:'None',tx:{t:'',color:'#ffffff',size:8,x:50,y:50},sh:{type:'none',color:'#F06BA8',size:50},bd:{w:0,color:'#ffffff'}});
+const clone=s=>({...s,tx:{...s.tx},sh:{...s.sh},bd:{...s.bd}});
+function start(c,name,id){orig=c;st=fresh(c);hist=[clone(st)];hi=0;curName=name;curId=id;show('edit');setTab(pending||'adjust');pending=null;syncUI();render()}
+function commit(){hist=hist.slice(0,hi+1);hist.push(clone(st));if(hist.length>30)hist.shift();hi=hist.length-1;syncUI()}
+function go(i){if(i<0||i>=hist.length)return;hi=i;st=clone(hist[i]);syncUI();render();if(tab==='crop')initCrop()}
+$('un').onclick=()=>go(hi-1);$('re').onclick=()=>go(hi+1);
+$('rs').onclick=()=>{st=fresh(orig);commit();render();if(tab==='crop')initCrop();toast('Reset to original')};
+const cmp=$('cmp');
+cmp.onpointerdown=e=>{if(!st)return;e.preventDefault();$('crop').hidden=true;draw(fresh(orig),$('cv'),{max:1400});fit()};
+['pointerup','pointerleave','pointercancel'].forEach(v=>cmp.addEventListener(v,()=>{if(st)render()}));
+
+/* ---------- rendering ---------- */
+const FS={'None':'','Mono':'grayscale(1)','Noir':'grayscale(1) contrast(1.4) brightness(.9)','Silver':'grayscale(1) contrast(1.2) brightness(1.1)','Sepia':'sepia(.8)','Vintage':'sepia(.5) contrast(.9) brightness(1.1) saturate(1.3)','Retro':'sepia(.4) hue-rotate(-20deg) saturate(1.5)','Vivid':'saturate(1.5) contrast(1.1)','Warm':'sepia(.3) saturate(1.3) hue-rotate(-10deg)','Cool':'hue-rotate(15deg) saturate(1.1) brightness(1.05)','Fade':'contrast(.85) brightness(1.1) saturate(.8)','Dramatic':'contrast(1.5) saturate(.8) brightness(.9)','Bright':'brightness(1.25) saturate(1.1)','Dark':'brightness(.75) contrast(1.15)','Matte':'contrast(.8) brightness(1.1) saturate(.85)','Pop':'saturate(2) contrast(1.1)','Soft':'contrast(.9) brightness(1.1) saturate(1.1)','Sunset':'sepia(.35) saturate(1.8) hue-rotate(-15deg)','Golden':'sepia(.5) saturate(1.6) brightness(1.1)','Ocean':'hue-rotate(170deg) saturate(1.2)','Forest':'hue-rotate(60deg) saturate(1.2)','Rose':'hue-rotate(-40deg) saturate(1.3)','Lavender':'hue-rotate(250deg) saturate(1.1) brightness(1.05)','Mint':'hue-rotate(100deg) saturate(1.1) brightness(1.1)','Peach':'sepia(.25) saturate(1.5) brightness(1.1) hue-rotate(-10deg)','Cherry':'saturate(1.6) hue-rotate(-25deg) contrast(1.1)','Arctic':'hue-rotate(190deg) brightness(1.15) saturate(.9)','Dusk':'hue-rotate(-30deg) brightness(.85) saturate(1.3)','Dawn':'sepia(.2) brightness(1.15) saturate(1.2)','Neon':'saturate(2.5) contrast(1.2) hue-rotate(10deg)','Cinema':'contrast(1.25) saturate(.85) sepia(.15) brightness(.95)','Film':'contrast(1.1) saturate(.9) sepia(.2)','Analog':'sepia(.3) contrast(1.05) saturate(1.2) hue-rotate(-8deg)','Polaroid':'sepia(.2) contrast(1.1) brightness(1.1) saturate(1.3)','Chrome':'contrast(1.3) saturate(1.2) brightness(1.05)','Crisp':'contrast(1.2) saturate(1.1)','Haze':'contrast(.75) brightness(1.2) saturate(.9)','Dream':'brightness(1.15) saturate(1.3) contrast(.9) hue-rotate(-5deg)','Moody':'contrast(1.2) brightness(.8) saturate(.8)','Faded Blue':'hue-rotate(20deg) contrast(.9) saturate(.8) brightness(1.1)','Autumn':'sepia(.4) saturate(1.8) hue-rotate(-20deg)','Spring':'saturate(1.4) brightness(1.1) hue-rotate(10deg)','Summer':'saturate(1.5) brightness(1.1) sepia(.15)','Winter':'hue-rotate(15deg) saturate(.7) brightness(1.1) contrast(1.1)','Ember':'sepia(.6) saturate(2) hue-rotate(-25deg) contrast(1.1)','Mocha':'sepia(.7) contrast(1.1) brightness(.9)','Slate':'grayscale(.7) contrast(1.15)','Pastel':'saturate(.7) brightness(1.2) contrast(.9)','Negative':'invert(1)','X-Ray':'grayscale(1) invert(1) contrast(1.3)'};
+$('fl').innerHTML=Object.keys(FS).map(k=>`<button class="ft" data-f="${k}"><canvas width="84" height="84"></canvas>${k}</button>`).join('');
+$('fl').onclick=e=>{const b=e.target.closest('[data-f]');if(!b||!st)return;if(!FOK)return toast('Filters need a newer browser or WebView.');st.f=b.dataset.f;commit();render()};
+let cid=0;
+function thumbs(){const k=(st.base._id||(st.base._id=++cid))+'-'+st.rot+st.fx+st.fy;if($('fl')._k===k)return;$('fl')._k=k;
+  const g=draw(st,document.createElement('canvas'),{geo:true,max:140}),m=Math.min(g.width,g.height);
+  Q('#fl canvas').forEach(c=>{const x=c.getContext('2d');x.clearRect(0,0,84,84);if(FOK)x.filter=FS[c.parentNode.dataset.f];x.drawImage(g,(g.width-m)/2,(g.height-m)/2,m,m,0,0,84,84)})}
+function draw(s,c,o={}){const b=s.base,sw=s.rot%2?b.height:b.width,sh=s.rot%2?b.width:b.height,k=o.max?Math.min(1,o.max/Math.max(sw,sh)):1,
+  W=Math.max(1,Math.round(sw*k)),H=Math.max(1,Math.round(sh*k));c.width=W;c.height=H;const x=c.getContext('2d');
+  x.imageSmoothingQuality='high';x.save();x.translate(W/2,H/2);x.scale(s.fx?-1:1,s.fy?-1:1);x.rotate(s.rot*Math.PI/2);
+  if(!o.geo&&FOK)x.filter=`brightness(${s.b}%) contrast(${s.c}%) saturate(${s.s}%) blur(${s.bl*Math.max(W,H)/1000}px) ${FS[s.f]}`;
+  x.drawImage(b,-b.width*k/2,-b.height*k/2,b.width*k,b.height*k);x.restore();if(FOK)x.filter='none';
+  if(o.geo)return c;const m=Math.min(W,H);
+  if(s.bd.w>0){const l=s.bd.w/100*m;x.strokeStyle=s.bd.color;x.lineWidth=l;x.strokeRect(l/2,l/2,W-l,H-l)}
+  if(s.sh.type!=='none'){const d=s.sh.size/100*m;x.strokeStyle=s.sh.color;x.lineWidth=Math.max(2,m*.01);x.beginPath();
+    if(s.sh.type==='rect')x.rect(W/2-d/2,H/2-d/2,d,d);else if(s.sh.type==='circle')x.arc(W/2,H/2,d/2,0,7);else{x.moveTo(W/2-d/2,H/2);x.lineTo(W/2+d/2,H/2)}x.stroke()}
+  if(s.tx.t){x.font=`700 ${s.tx.size/100*H}px system-ui,sans-serif`;x.textAlign='center';x.textBaseline='middle';x.fillStyle=s.tx.color;x.shadowColor='rgba(0,0,0,.4)';x.shadowBlur=H*.006;x.fillText(s.tx.t,s.tx.x/100*W,s.tx.y/100*H);x.shadowBlur=0}
+  return c}
+const cv=$('cv');
+function render(){if(!st)return;draw(st,cv,{max:1400});fit();const g=gs();$('inf').textContent=`${g[0]} × ${g[1]} px`;if(tab==='crop')drawCrop();if(tab==='filters')thumbs()}
+const gs=()=>st.rot%2?[st.base.height,st.base.width]:[st.base.width,st.base.height];
+function fit(){const sg=$('stage'),aw=sg.clientWidth-24,ah=sg.clientHeight-24;if(aw<=0||ah<=0)return;const k=Math.min(aw/cv.width,ah/cv.height),cw=$('cw');cw.style.width=cv.width*k+'px';cw.style.height=cv.height*k+'px'}
+new ResizeObserver(()=>st&&fit()).observe($('stage'));
+
+/* ---------- controls ---------- */
+function ref(el){return el.dataset.g?st[el.dataset.g]:st}
+function lab(el){const b=el.previousSibling&&el.parentNode.querySelector('b');if(b&&el.type==='range')b.textContent=el.value+(el.dataset.k==='bl'?' px':el.dataset.g?'%':'%')}
+Q('[data-k]').forEach(el=>{
+  const num=el.type==='range';
+  el.addEventListener('input',()=>{if(!st)return;if(!FOK&&!el.dataset.g)toast('Adjustments need a newer browser or WebView.');ref(el)[el.dataset.k]=num?+el.value:el.value;lab(el);render()});
+  el.addEventListener('change',()=>{if(st)commit()})});
+function syncUI(){if(!st)return;setTimeout(()=>window.selLab&&selLab());Q('[data-k]').forEach(el=>{el.value=ref(el)[el.dataset.k];lab(el)});
+  Q('[data-f]').forEach(b=>b.classList.toggle('on',b.dataset.f===st.f));$('un').disabled=hi<=0;$('re').disabled=hi>=hist.length-1;const g=gs();$('rw').value=g[0];$('rh').value=g[1]}
+function setTab(t){tab=t;Q('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));Q('.pn').forEach(p=>p.classList.toggle('on',p.dataset.p===t));$('crop').hidden=t!=='crop';if(t==='crop')initCrop();if(st)render()}
+Q('#tabs button').forEach(b=>b.onclick=()=>setTab(b.dataset.t));
+$('rl').onclick=()=>{st.rot=(st.rot+3)%4;commit();render()};$('rr').onclick=()=>{st.rot=(st.rot+1)%4;commit();render()};
+$('fh').onclick=()=>{st.fx^=1;commit();render()};$('fv').onclick=()=>{st.fy^=1;commit();render()};
+function bake(fn){const g=draw(st,document.createElement('canvas'),{geo:true});st.base=fn(g);st.rot=0;st.fx=st.fy=0;commit();render();if(tab==='crop')initCrop()}
+
+/* ---------- crop ---------- */
+let cr,ratio=0,drag=null;
+$('ratios').innerHTML=[['Free',0],['1:1',1],['4:5',.8],['3:4',.75],['16:9',16/9],['9:16',9/16]].map(a=>`<button class="chip" data-r="${a[1]}">${a[0]}</button>`).join('');
+$('ratios').onclick=e=>{if(e.target.dataset.r!==undefined)setRatio(+e.target.dataset.r)};
+function setRatio(r){ratio=r;Q('[data-r]').forEach(b=>b.classList.toggle('on',+b.dataset.r===r));if(r&&st){const W=cv.width,H=cv.height;let w=.9,h=w*W/(r*H);if(h>.9){h=.9;w=h*r*H/W}cr={x:(1-w)/2,y:(1-h)/2,w,h}}else cr={x:.05,y:.05,w:.9,h:.9};drawCrop()}
+function initCrop(){setRatio(0)}
+function drawCrop(){if(!cr)return;const s=$('cb').style;s.left=cr.x*100+'%';s.top=cr.y*100+'%';s.width=cr.w*100+'%';s.height=cr.h*100+'%'}
+$('crop').addEventListener('pointerdown',e=>{const h=e.target.dataset.h;if(!h&&e.target.id!=='cb')return;e.preventDefault();$('crop').setPointerCapture(e.pointerId);drag={h,x:e.clientX,y:e.clientY,o:{...cr}}});
+$('crop').addEventListener('pointermove',e=>{if(!drag)return;const r=cv.getBoundingClientRect(),o=drag.o;
+  if(!drag.h){cr.x=clamp(o.x+(e.clientX-drag.x)/r.width,0,1-o.w);cr.y=clamp(o.y+(e.clientY-drag.y)/r.height,0,1-o.h);return drawCrop()}
+  const h=drag.h,px=clamp((e.clientX-r.left)/r.width,0,1),py=clamp((e.clientY-r.top)/r.height,0,1),ax=h[1]==='l'?o.x+o.w:o.x,ay=h[0]==='t'?o.y+o.h:o.y;
+  let w=Math.abs(px-ax),hh=Math.abs(py-ay);const W=cv.width,H=cv.height;
+  if(ratio){hh=w*W/(ratio*H);const mh=h[0]==='t'?ay:1-ay;if(hh>mh){hh=mh;w=hh*ratio*H/W}}
+  if(w<.05||hh<.05)return;cr={x:h[1]==='l'?ax-w:ax,y:h[0]==='t'?ay-hh:ay,w,h:hh};drawCrop()});
+['pointerup','pointercancel'].forEach(v=>$('crop').addEventListener(v,()=>drag=null));
+$('applyCrop').onclick=()=>bake(g=>{const c=document.createElement('canvas'),sw=cr.w*g.width,sh=cr.h*g.height;c.width=Math.max(1,Math.round(sw));c.height=Math.max(1,Math.round(sh));c.getContext('2d').drawImage(g,cr.x*g.width,cr.y*g.height,sw,sh,0,0,c.width,c.height);return c});
+
+/* ---------- resize ---------- */
+$('rw').oninput=()=>{if($('lk').checked&&st){const g=gs();$('rh').value=Math.round($('rw').value*g[1]/g[0])}};
+$('rh').oninput=()=>{if($('lk').checked&&st){const g=gs();$('rw').value=Math.round($('rh').value*g[0]/g[1])}};
+Q('[data-w]').forEach(b=>b.onclick=()=>{const g=gs(),w=b.dataset.w==='half'?Math.round(g[0]/2):+b.dataset.w;$('rw').value=w;$('rh').value=Math.round(w*g[1]/g[0])});
+$('applyRs').onclick=()=>{const w=Math.round(+$('rw').value),h=Math.round(+$('rh').value);if(!(w>=16&&h>=16&&w<=4096&&h<=4096))return toast('Enter a width and height between 16 and 4096.');
+  bake(g=>{const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(g,0,0,w,h);return c});toast(`Resized to ${w} × ${h}`)};
+
+/* ---------- export ---------- */
+function flat(max){const c=draw(st,document.createElement('canvas'),{max});return c}
+const blobOf=(c,type,q)=>new Promise(r=>c.toBlob(r,type,q));
+$('ex').onclick=()=>{const g=gs();$('xi').textContent=`Full size: ${g[0]} × ${g[1]} px`;syncPrefs();$('xs').hidden=false};
+$('xc').onclick=()=>$('xs').hidden=true;
+$('xf').onchange=e=>{P.fmt=e.target.value;sp();syncPrefs()};
+$('xq').oninput=e=>{P.q=+e.target.value;sp();syncPrefs()};
+$('xd').onclick=async()=>{try{let c=flat(8000);const jpg=P.fmt==='jpg';
+  if(jpg){const w=document.createElement('canvas');w.width=c.width;w.height=c.height;const x=w.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w.width,w.height);x.drawImage(c,0,0);c=w}
+  const b=await blobOf(c,jpg?'image/jpeg':'image/png',P.q/100);if(!b)throw 0;
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`${curName}-edited.${jpg?'jpg':'png'}`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  $('xs').hidden=true;toast('Exported. Check your downloads.')}catch(e){toast('Export failed. The image may be too large for this device.')}};
+
+const ask=m=>new Promise(r=>{$('cft').textContent=m;$('cf').hidden=false;$('cfy').onclick=()=>{$('cf').hidden=true;r(true)};$('cfn').onclick=()=>{$('cf').hidden=true;r(false)}});
+/* ---------- projects (IndexedDB) ---------- */
+const DB=()=>new Promise((res,rej)=>{if(!window.indexedDB)return rej();const r=indexedDB.open('photostudio',1);r.onupgradeneeded=()=>r.result.createObjectStore('p',{keyPath:'id'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+async function tx(mode,fn){const d=await DB();return new Promise((res,rej)=>{const t=d.transaction('p',mode),q=fn(t.objectStore('p'));t.oncomplete=()=>res(q&&q.result);t.onerror=()=>rej(t.error)})}
+$('sv').onclick=async()=>{try{const c=flat(3000),b=await blobOf(c,'image/jpeg',.92),t=document.createElement('canvas'),k=240/Math.max(c.width,c.height);
+  t.width=Math.round(c.width*k);t.height=Math.round(c.height*k);t.getContext('2d').drawImage(c,0,0,t.width,t.height);
+  const id=curId||String(Date.now());await tx('readwrite',s=>s.put({id,name:curName,date:Date.now(),thumb:t.toDataURL('image/jpeg',.7),blob:b}));curId=id;toast('Saved to Projects');loadProjs()}catch(e){toast('Saving projects is not available here.')}};
+const fd=d=>new Date(d).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
+async function loadProjs(){let l=[];try{l=(await tx('readonly',s=>s.getAll())||[]).sort((a,b)=>b.date-a.date);$('pnote').textContent='Saved on this device only.'}catch(e){$('pnote').textContent='Project storage is not supported in this browser.'}
+  const card=(p,a)=>`<div class="proj"><img src="${p.thumb}" alt=""><b>${esc(p.name)}</b><small>${fd(p.date)}</small>${a?`<div class="pa"><button data-o="${p.id}">Open</button><button class="d" data-d="${p.id}">Delete</button></div>`:''}</div>`;
+  $('plist').innerHTML=l.length?l.map(p=>card(p,1)).join(''):'<div class="empty" style="grid-column:1/-1">No saved projects yet. Edit a photo and tap the folder icon to save it.</div>';
+  $('recent').innerHTML=l.length?l.slice(0,8).map(p=>`<button class="proj" data-o="${p.id}"><img src="${p.thumb}" alt=""><b>${esc(p.name)}</b><small>${fd(p.date)}</small></button>`).join(''):'<div class="card" style="width:auto;padding:14px 18px;color:var(--mut);font-weight:500">Your edited photos will appear here</div>'}
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+document.addEventListener('click',async e=>{const o=e.target.closest('[data-o]'),d=e.target.closest('[data-d]');
+  if(o){try{const p=await tx('readonly',s=>s.get(o.dataset.o));start(toCanvas(await readImg(p.blob)),p.name,p.id)}catch(x){toast('Could not open this project.')}}
+  if(d&&await ask('Delete this project? This cannot be undone.')){await tx('readwrite',s=>s.delete(d.dataset.d));loadProjs()}});
+$('clr').onclick=async()=>{if(!await ask('Clear all saved projects and settings from this device?'))return;try{await tx('readwrite',s=>s.clear())}catch(e){}try{localStorage.removeItem('ps')}catch(e){}P={theme:'light',fmt:'jpg',q:92};theme();syncPrefs();loadProjs();toast('Local data cleared')};
+
+/* ---------- collage ---------- */
+const LY={2:[[[0,0,.5,1],[.5,0,.5,1]],[[0,0,1,.5],[0,.5,1,.5]]],3:[[[0,0,.6,1],[.6,0,.4,.5],[.6,.5,.4,.5]],[[0,0,1/3,1],[1/3,0,1/3,1],[2/3,0,1/3,1]]],4:[[[0,0,.5,.5],[.5,0,.5,.5],[0,.5,.5,.5],[.5,.5,.5,.5]],[[0,0,.25,1],[.25,0,.25,1],[.5,0,.25,1],[.75,0,.25,1]]]};
+let cn=2,cl=0,cimgs=[];
+$('tpl').innerHTML=[2,3,4].map(n=>`<button class="card" style="width:110px" data-c="${n}"><div class="mini">${LY[n][0].map(r=>`<i style="left:${r[0]*100}%;top:${r[1]*100}%;width:${r[2]*100}%;height:${r[3]*100}%"></i>`).join('')}</div>${n} photos</button>`).join('');
+Q('[data-c]').forEach(b=>b.onclick=()=>{cn=+b.dataset.c;cl=0;cimgs=[];collUI();$('co').hidden=false;dc()});
+function collUI(){$('cc-n').innerHTML=[2,3,4].map(n=>`<button class="chip ${n===cn?'on':''}" data-n="${n}">${n} photos</button>`).join('');$('cc-l').innerHTML=[0,1].map(i=>`<button class="chip ${i===cl?'on':''}" data-l="${i}">Layout ${'AB'[i]}</button>`).join('')}
+$('co').addEventListener('click',e=>{if(e.target.dataset.n){cn=+e.target.dataset.n;cl=0;cimgs=cimgs.slice(0,cn);collUI();dc()}if(e.target.dataset.l){cl=+e.target.dataset.l;collUI();dc()}});
+$('cg').oninput=e=>{e.target.parentNode.querySelector('b').textContent=e.target.value+' px';dc()};$('cbg').oninput=dc;
+function dc(){const c=$('cc'),x=c.getContext('2d'),g=+$('cg').value;c.width=c.height=1080;x.fillStyle=$('cbg').value;x.fillRect(0,0,1080,1080);
+  LY[cn][cl].forEach((r,i)=>{const rx=r[0]*1080+g/2,ry=r[1]*1080+g/2,rw=r[2]*1080-g,rh=r[3]*1080-g,m=cimgs[i];
+    if(m){const k=Math.max(rw/m.width,rh/m.height),sw=rw/k,sh=rh/k;x.drawImage(m,(m.width-sw)/2,(m.height-sh)/2,sw,sh,rx,ry,rw,rh)}
+    else{x.fillStyle='#e9e6f7';x.fillRect(rx,ry,rw,rh);x.fillStyle='#7657E8';x.font='600 44px system-ui';x.textAlign='center';x.fillText('Photo '+(i+1),rx+rw/2,ry+rh/2)}})}
+$('cp').onclick=()=>$('fc').click();
+$('fc').onchange=async e=>{const fs=[...e.target.files].slice(0,cn);e.target.value='';if(fs.length<cn)return toast(`Choose ${cn} photos at once.`);if(!fs.every(okFile))return;
+  try{cimgs=[];for(const f of fs)cimgs.push(toCanvas(await readImg(f),1600));dc()}catch(x){toast('One of the photos could not be read.')}};
+$('co-x').onclick=()=>$('co').hidden=true;
+$('co-open').onclick=()=>{if(cimgs.length<cn)return toast(`Choose ${cn} photos first.`);const c=document.createElement('canvas');c.width=c.height=1080;c.getContext('2d').drawImage($('cc'),0,0);$('co').hidden=true;start(c,'Collage',null)};
+
+/* ---------- custom pickers (replace native select dialogs) ---------- */
+$('th').dataset.title='Theme';$('sf').dataset.title='Export format';$('xf').dataset.title='Export format';
+Q('select').forEach(sel=>{sel.classList.add('cs');sel.dataset.title=sel.dataset.title||'Shape';
+  const b=document.createElement('button');b.type='button';b.className='sel';b.innerHTML='<span></span><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+  sel.after(b);sel._b=b;if(sel.style.cssText)b.style.cssText=sel.style.cssText;
+  b.onclick=()=>{$('pt').textContent=sel.dataset.title;$('po').innerHTML=[...sel.options].map(o=>`<button class="opt ${o.value===sel.value?'on':''}" data-v="${o.value}">${o.text}<i class="rd"></i></button>`).join('');
+    $('ps').hidden=false;$('po').onclick=e=>{const v=e.target.closest('[data-v]');if(!v)return;sel.value=v.dataset.v;selLab();$('ps').hidden=true;sel.dispatchEvent(new Event('input'));sel.dispatchEvent(new Event('change'))}}});
+$('ps').onclick=e=>{if(e.target.id==='ps')$('ps').hidden=true};
+function selLab(){Q('select').forEach(s=>{s._b.firstChild.textContent=s.options[s.selectedIndex].text})}
+selLab();
+/* ---------- init + splash ---------- */
+theme();syncPrefs();setTab('adjust');
+if(window.matchMedia)matchMedia('(prefers-color-scheme:dark)').addEventListener&&matchMedia('(prefers-color-scheme:dark)').addEventListener('change',theme);
+Promise.all([new Promise(r=>setTimeout(r,2000)),Promise.race([loadProjs().catch(()=>{}),new Promise(r=>setTimeout(r,1500))])]).then(()=>{$('splash').classList.add('out');setTimeout(()=>$('splash').remove(),700)});
+</script>
+</body>
+</html>
